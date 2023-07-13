@@ -11,18 +11,26 @@ services:
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
+    restart: always
+
   backend:
     image: pytem/kittygram_backend
     env_file: .env
     volumes:
       - static:/backend_static
       - media:/app/media
+    depends_on:
+      - db
+    restart: on-failure
   frontend:
     image: pytem/kittygram_frontend
     env_file: .env
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - static:/frontend_static
+    depends_on:
+      - backend
+    restart: no
   gateway:
     image: pytem/kittygram_gateway
     env_file: .env
@@ -31,3 +39,7 @@ services:
     volumes:
       - static:/static
       - media:/app/media
+    depends_on:
+      - backend
+    restart: always
+
